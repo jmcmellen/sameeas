@@ -390,9 +390,9 @@ if __name__ == "__main__":
     #data = makeMorse("KC0FLR Springfield MO", 25, freq, peakLevel - 1, sampRate, sampWidth, numCh)
     #data = genNonSinePCMToneData(freq, sampRate, duration, sampWidth, peakLevel, numCh)
     #data = genFMwaveform(1562.5, 0.5, sampRate, sampWidth, peakLevel, 10000, duration, numCh)
-    #data = generateAFSK(2083, 1562.5, 520.5, sampRate, sampWidth, peakLevel, numCh, easmsg)
-    data = generateEASpcmData('EAS', 'RWT', '029077', '0030', timestamp, 'KXYZ/FM', sampRate, 
-	    sampWidth, peakLevel, numCh)
+    data = generateAFSK(2083, 1562.5, 520.5, sampRate, sampWidth, peakLevel, numCh, easmsg)
+    #data = generateEASpcmData('EAS', 'RWT', '029077', '0030', timestamp, 'KXYZ/FM', sampRate, 
+	#    sampWidth, peakLevel, numCh)
     #data = generateSimplePCMToneData(10 * freq, 0, sampRate, duration, sampWidth, peakLevel, numCh)
     #data = applyLinearFade(-100, 0, numCh, sampWidth, data)
     #data = changeLevelPCMdata(sampRate, sampWidth, -6, numCh, data)
