@@ -52,32 +52,19 @@ if __name__ == "__main__":
 	    bit_width_ctr = 0
 
     #print bitstream
-    preamble = '11010101' * 16
-    #msg_collection = re.findall(preamble, bitstream)
-    start_index = 0
-    msg_collection = []
-    while True:
-	try:
-	    start_index = bitstream.index(preamble, start_index)
-	    msg_collection.append(start_index)
-	except ValueError:
-	    print "Error"
-	    break
-	start_index += 128
-	print start_index
-    
-    print msg_collection
-    start_index = bitstream.find(preamble)
-    #print msg_collection
-    for i in range(start_index, len(bitstream), 8):
-	byte = bitstream[i:i+8]
-	letter = chr(int(byte[::-1], 2))
-	sys.stdout.write(letter)
-	message += letter
-	#time.sleep(0.150)
+    msg_collection = re.split(r'11010101', bitstream)
+    #print thing_list
+    messages = []
+    for bits in msg_collection:
+	if len(bits) > 7:
+	    message = ''
+	    for i in range(0, len(bits), 8):
+		byte = bits[i:i+8]
+		message += chr(int(byte[::-1], 2))
+	    if message.startswith(('ZCZC', 'NNNN')):
+		messages.append(message)
 
-    print repr(message)
-
+    print messages
     file = wave.open('correlated.wav', 'wb')
     file.setparams( (2, 2, 44100, 44100, 'NONE', '') )
     file.writeframes(out_data)

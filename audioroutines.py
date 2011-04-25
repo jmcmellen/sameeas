@@ -63,6 +63,63 @@ def recursiveFilterPCMaudio(fc, sampRate, sampWidth, numCh, data):
 
     return filtered
 
+def bpButterworthFilter6(fc, sampRate, sampWidth, numCh, data):
+    a0 = 1
+    a1 = -4.16740087e+00
+    a2 = 9.56715918e+00
+    a3 = -1.52777374e+01
+    a4 = 1.88165959e+01
+    a5 = -1.84592133e+01
+    a6 = 1.46959044e+01
+    a7 = -9.50055587e+00
+    a8 = 4.97057565e+00
+    a9 = -2.04987349e+00
+    a10 = 6.42775774e-01
+    a11 = -1.38591530e-01
+    a12 = 1.72096260e-02
+    b0 = 3.36990647e-03
+    b1 = 0
+    b2 = -2.02194388e-02
+    b3 = 0
+    b4 = 5.05485971e-02
+    b5 = -2.15330343e-17
+    b6 = -6.73981294e-02
+    b7 = 2.15330343e-17
+    b8 = 5.05485971e-02
+    b9 = 0
+    b10 = -2.02194388e-02
+    b11 = 0
+    b12 = 3.36990647e-03
+
+    samples = array.array('h', data)
+    print len(samples)
+    filtered = data[0:12]
+    y = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+    for n in range(12, len(samples) - 12):
+	sample = (a0 * samples[n] + a1 * samples[n -1] + a2 * samples[n-2] + a3 * samples[n-3] +
+		  a4 * samples[n-4] + a5 * samples[n-5] + a6 * samples[n-6] + a7 * samples[n-7] + 
+		  a8 * samples[n-8] + a9 * samples[n-9] + a10 * samples[n-10] + a11 * samples[n-11] + 
+		  a12 * samples[n-12] -
+		  b0 * y[0] - b1 * y[1] - b2 * y[2] - b3 * y[3] - b4 * y[4] - b5 * y[5] -
+		  b6 * y[6] - b7 * y[7] - b8 * y[8] - b9 * y[9] - b10 * y[10] - b11 * y[11] -
+		  b12 * y[12] )
+	y[12] = y[11]
+	y[11] = y[10]
+	y[10] = y[9]
+	y[9] = y[8]
+	y[8] = y[7]
+	y[7] = y[6]
+	y[6] = y[5]
+	y[5] = y[4]
+	y[4] = y[3]
+	y[3] = y[2]
+	y[2] = y[1]
+	y[1] = sample
+	filtered += struct.pack('<h', int(math.floor(sample)))
+
+    return filtered
+
 def convertdbFStoInt( level, sampWidth):
     return math.pow(10, (float(level) / 20)) * 32767
 
@@ -131,7 +188,12 @@ def main():
     sampWidth = 16
     sampRate = 44100
 
-    data = generateDualTonePCMData(853, 960, sampRate, 8, sampWidth, peakLevel, numCh)
+    
+    file = wave.open('testchirp.wav', 'rb')
+    samples = file.readframes( file.getnframes())
+    file.close()
+    #data = generateDualTonePCMData(853, 960, sampRate, 8, sampWidth, peakLevel, numCh)
+    data = bpButterworthFilter6(0, sampRate, sampWidth, numCh, samples)
     fileout = wave.open( 'test.wav', 'wb')
     fileout.setparams( (numCh, sampWidth/8, sampRate, sampRate, 'NONE', '') )
     fileout.writeframes(data)
