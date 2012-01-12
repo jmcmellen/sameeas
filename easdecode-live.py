@@ -1,11 +1,9 @@
-import math, struct, array, sys, time, re
+import pyaudio
+import wave
+import sys
+import math, struct, array, time, re
 
-if __name__ == "__main__":
-    import wave
-
-    file = wave.open('nat-test-notsure.wav', 'rb')
-    samples = array.array('h', file.readframes( file.getnframes()))
-    file.close()
+def analyze_wave(samples):
     delay_length = int(divmod(44100, 520.5)[0] / 2.0)
     print delay_length
     out_data = ''
@@ -14,9 +12,8 @@ if __name__ == "__main__":
     bit_width_ctr = 0
     bitstream = ''
     message = ''
-    starttime = time.clock()
 
-    for i in range(0, len(samples) - delay_length):
+    for i in range(0, len(samples) - delay_length, 2):
 	#print samples[i + delay_length], samples[i]
 	cor_val = (samples[i + delay_length] * samples[i]) / 1073676289.0
 	#print cor_val
@@ -37,7 +34,7 @@ if __name__ == "__main__":
 
 	else:
 	    zero_counter += 1
-	    if zero_counter > 512:
+	    if zero_counter > 16:
 		out_data += struct.pack('<h', 0)
 		bit_width_ctr = 0
 	    else:
@@ -68,10 +65,39 @@ if __name__ == "__main__":
 		messages.append(message)
 
     print messages
-    elapsedtime = (time.clock() - starttime)
-    print elapsedtime
-    file = wave.open('correlated.wav', 'wb')
+    file = wave.open('correlated1.wav', 'wb')
     file.setparams( (2, 2, 44100, 44100, 'NONE', '') )
     file.writeframes(out_data)
     file.close()
 
+def main():
+    chunk = 44100 * 30
+    FORMAT = pyaudio.paInt16
+    CHANNELS = 2
+    RATE = 44100
+    WAVE_OUTPUT_FILENAME = "output.wav"
+
+    if sys.platform == 'darwin':
+	CHANNELS = 1
+
+    p = pyaudio.PyAudio()
+
+    stream = p.open(format = FORMAT,
+                channels = CHANNELS,
+                rate = RATE,
+                input = True,
+                frames_per_buffer = chunk)
+
+    print "* recording"
+    all = []
+
+    while True:
+	samples = array.array('h', stream.read(chunk))
+	analyze_wave(samples)
+
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+
+if __name__ == "__main__":
+    main()
