@@ -3,6 +3,8 @@ import math, struct, array, sys, time, re
 if __name__ == "__main__":
     import wave
 
+    #Comment
+
     file = wave.open('nat-test-notsure.wav', 'rb')
     samples = array.array('h', file.readframes( file.getnframes()))
     file.close()
