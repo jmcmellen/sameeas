@@ -1,5 +1,6 @@
 *~
 *.pyc
 *.wav
+*.mp3
 build
 dist
